@@ -196,12 +196,12 @@ def run_genotype_allele_analysis(alpha: float = 0.05, tol: float = 0.01) -> None
     print(f"  X^2 = {res['chi2']:.3f}, df = {res['dof']}, p = {format_p(res['p_value'])}")
     print(f"  Decision at alpha={alpha}: {'REJECT H0' if res['p_value'] < alpha else 'FAIL TO REJECT H0'}")
 
-    print("\nPer-cancer-type: Cancer Type vs Total Cancer (alleles A/B/O)")
+    print("\nPer-cancer-type: Control vs Cancer Type (alleles A/B/O)")
     rows = []
     for i, cancer in enumerate(CANCER_TYPES):
         row = CANCER_PHENO_MATRIX[i]
         mle_i, alleles_i, N_i = mle_and_counts(row)
-        table_i = np.vstack([alleles_i, alleles_total])
+        table_i = np.vstack([alleles_control, alleles_i])
         r = chi_square_test(table_i)
         rows.append(
             {

@@ -1,172 +1,149 @@
+# Association Between ABO Blood Type and Cancer: A Statistical Analysis
 
-# Association Between ABO Blood Type and Cancer: A Statistical Analysis 
 ## Abstract
 
-This study examines the association between ABO blood type and various cancer types using chi-square tests of independence. Both blood phenotype (A, B, AB, O) and genotype distributions were analyzed in relation to cancer presence. Statistical evidence indicates significant associations between blood type and most cancer types examined. The analysis was originally conducted in R and has been fully reimplemented in Python to ensure reproducibility and transparency. The original R-based report is available in the file ABO Blood Type Analysis.pdf included in this repository.
-
----
+This study examines the association between ABO blood type and cancer using Pearson chi-square tests of independence on published phenotype counts for 2,640 cancer patients and 2,640 controls. Two levels are analyzed: the observed **blood phenotype** distribution (A, B, AB, O) and the **allele frequencies** (A, B, O) inferred from those phenotypes under Hardy–Weinberg equilibrium. The phenotype distribution of the pooled cancer group differs strongly from controls (χ² = 233.7, df = 3, p < 10⁻¹⁶), driven mainly by an excess of type A and a deficit of type O among cancer patients. Nine of twelve individual cancer types show significant phenotype and allele-level differences from controls; gastrointestinal tract, gall bladder, and (at the allele level) lymphoma do not. The analysis was originally conducted in R and has been fully reimplemented in Python; the original R-based report is included as `ABO Blood Type Analysis.pdf`.
 
 ## 1. Introduction
 
-The ABO blood group system, determined by antigens present on the surface of red blood cells, has long been recognized for its importance in transfusion medicine. Beyond its clinical role in compatibility, epidemiological studies have suggested that blood type may influence susceptibility to certain diseases, including cancer.
+The ABO blood group system, determined by antigens on the surface of red blood cells, is best known for its role in transfusion compatibility. Epidemiological studies have also reported associations between specific blood groups and malignancies such as gastric, pancreatic, and ovarian cancers, raising questions about the biological mechanisms linking blood group antigens and tumor development.
 
-Prior research has reported associations between specific blood groups and malignancies such as gastric, pancreatic, and ovarian cancers. These findings raise important questions regarding the biological mechanisms linking blood group antigens and tumor development.
-
-The purpose of this study is to formally assess whether:
+This study formally assesses whether:
 
 1. Blood phenotype distribution differs between cancer patients and controls.
-2. Blood genotype distribution differs between cancer patients and controls.
-3. Individual cancer types demonstrate distinct blood type associations.
+2. Inferred ABO allele frequencies differ between cancer patients and controls.
+3. Individual cancer types show distinct blood type associations.
 
-Data source:
-https://ispub.com/IJPA/13/1/5982
+## 2. Data
 
----
+The counts come from a published case–control study of ABO blood groups in cancer patients, available from the *Internet Journal of Pathology* (Internet Scientific Publications): <https://ispub.com/IJPA/13/1/5982>. The data are aggregate counts, not individual records, and are embedded directly in the analysis script.
 
-## 2. Statistical Methodology
+| Group | N | A | B | AB | O |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Controls | 2,640 | 490 (18.6%) | 1,070 (40.5%) | 300 (11.4%) | 780 (29.5%) |
+| All cancers | 2,640 | 903 (34.2%) | 1,068 (40.5%) | 246 (9.3%) | 423 (16.0%) |
 
-### 2.1 Hypothesis Testing Framework
+Twelve cancer types are reported separately: oral cavity (n = 560), breast (462), cervix (406), ovary (294), gastrointestinal tract (210), bone (189), lungs (168), central nervous system (112), lymphoma (84), gall bladder (70), urinary bladder (50), and kidney (35).
 
-For both phenotype and genotype analyses, the following hypotheses were tested:
+## 3. Methods
 
-- **Null Hypothesis (H₀):**  
-  Blood type and cancer presence are independent.
+### 3.1 Hypotheses
 
-- **Alternative Hypothesis (H₁):**  
-  Blood type and cancer presence are associated.
+For every comparison:
 
-All tests were conducted at a significance level of α = 0.05.
+- **H₀:** blood type and cancer status are independent.
+- **H₁:** blood type and cancer status are associated.
 
-### 2.2 Statistical Procedure
+All tests use α = 0.05.
 
-The primary method used was the Pearson Chi-Square Test of Independence, applied to contingency tables constructed from:
+### 3.2 Phenotype analysis
 
-- Control group blood type counts  
-- Cancer group blood type counts  
+A Pearson chi-square test of independence (without continuity correction) is applied to a 2 × 4 contingency table of controls versus the pooled cancer group, and then to a 2 × 4 table of controls versus each individual cancer type.
 
-For genotype analysis, genotype frequencies were approximated via maximum likelihood estimation derived from phenotype counts.
+### 3.3 Allele-frequency analysis
 
----
+Phenotype counts do not reveal genotypes directly (type A may be AA or AO, type B may be BB or BO). Allele frequencies (p<sub>A</sub>, p<sub>B</sub>, p<sub>O</sub>) are therefore estimated by **maximum likelihood under Hardy–Weinberg equilibrium**, using a grid search with step 0.01 over the multinomial likelihood of the four observed phenotype counts. Expected allele counts (2N × frequency) are then compared between controls and cancer patients in a 2 × 3 chi-square test, overall and for each cancer type.
 
-## 3. Phenotype Analysis
+Estimated allele frequencies:
 
-### 3.1 Overall Cancer vs. Control Comparison
+| Group | p<sub>A</sub> | p<sub>B</sub> | p<sub>O</sub> |
+| --- | ---: | ---: | ---: |
+| Controls | 0.16 | 0.31 | 0.53 |
+| All cancers | 0.26 | 0.30 | 0.44 |
 
-A 2×4 contingency table was constructed comparing phenotype distributions between controls and the aggregated cancer group.
+## 4. Results
 
-Results:
+### 4.1 Phenotype: pooled cancer group versus controls
 
-- χ² = 233.73  
-- df = 3  
-- p-value < 2.2 × 10⁻¹⁶  
+χ² = 233.73, df = 3, p < 10⁻¹⁶. The phenotype distribution differs significantly. The direction is visible in the data table above: type A is nearly twice as frequent among cancer patients as among controls (34.2% vs 18.6%), type O is about half as frequent (16.0% vs 29.5%), and types B and AB are similar.
 
-Conclusion: Blood phenotype distribution differs significantly between cancer patients and controls.
+### 4.2 Phenotype: individual cancer types versus controls
 
----
+| Cancer type | n | χ² (df = 3) | p-value | Significant at 0.05 |
+| --- | ---: | ---: | ---: | :---: |
+| Breast | 462 | 131.90 | < 10⁻¹⁶ | Yes |
+| Lungs | 168 | 114.89 | < 10⁻¹⁶ | Yes |
+| Ovary | 294 | 90.65 | < 10⁻¹⁶ | Yes |
+| Oral cavity | 560 | 80.86 | < 10⁻¹⁶ | Yes |
+| Cervix | 406 | 71.19 | 2.4 × 10⁻¹⁵ | Yes |
+| Urinary bladder | 50 | 52.42 | 2.4 × 10⁻¹¹ | Yes |
+| Kidney | 35 | 39.02 | 1.7 × 10⁻⁸ | Yes |
+| Central nervous system | 112 | 38.42 | 2.3 × 10⁻⁸ | Yes |
+| Bone | 189 | 26.73 | 6.7 × 10⁻⁶ | Yes |
+| Lymphoma | 84 | 23.58 | 3.1 × 10⁻⁵ | Yes |
+| Gall bladder | 70 | 4.16 | 0.245 | No |
+| Gastrointestinal tract | 210 | 3.23 | 0.358 | No |
 
-### 3.2 Individual Cancer Type Comparisons (Phenotype)
+### 4.3 Allele frequencies: pooled cancer group versus controls
 
-Statistically significant associations were observed for:
+χ² = 170.62, df = 2, p < 10⁻¹⁶. The inferred allele distribution differs significantly, with a higher A-allele frequency and lower O-allele frequency in the cancer group.
 
-- Oral cavity
-- Lungs
-- Breast
-- Cervix
-- Ovary
-- Lymphoma
-- Bone
-- Kidney
-- Urinary bladder
-- Central nervous system
+### 4.4 Allele frequencies: individual cancer types versus controls
 
-Non-significant associations:
+| Cancer type | n | χ² (df = 2) | p-value | Significant at 0.05 |
+| --- | ---: | ---: | ---: | :---: |
+| Lungs | 168 | 144.04 | < 10⁻¹⁶ | Yes |
+| Breast | 462 | 102.11 | < 10⁻¹⁶ | Yes |
+| Cervix | 406 | 96.37 | < 10⁻¹⁶ | Yes |
+| Ovary | 294 | 56.61 | 5.1 × 10⁻¹³ | Yes |
+| Oral cavity | 560 | 53.07 | 3.0 × 10⁻¹² | Yes |
+| Kidney | 35 | 36.39 | 1.3 × 10⁻⁸ | Yes |
+| Urinary bladder | 50 | 31.72 | 1.3 × 10⁻⁷ | Yes |
+| Central nervous system | 112 | 24.41 | 5.0 × 10⁻⁶ | Yes |
+| Bone | 189 | 15.68 | 3.9 × 10⁻⁴ | Yes |
+| Lymphoma | 84 | 4.11 | 0.128 | No |
+| Gastrointestinal tract | 210 | 1.27 | 0.531 | No |
+| Gall bladder | 70 | 0.73 | 0.694 | No |
 
-- Gastrointestinal tract
-- Gall bladder
+The two levels of analysis agree closely. Gastrointestinal tract and gall bladder cancers are non-significant under both; lymphoma is significant at the phenotype level but not at the allele level, which is consistent with its small sample (n = 84) and with the allele test having one fewer degree of freedom.
 
----
+## 5. Interpretation and limitations
 
-## 4. Genotype Analysis
+The results indicate robust statistical associations between ABO blood type and cancer presence in this dataset, concentrated in an over-representation of type A (and the A allele) and an under-representation of type O among cancer patients. However:
 
-Genotype frequencies were approximated using maximum likelihood estimation based on observed phenotype counts.
+- **Association, not causation.** The chi-square test does not account for confounders such as age, sex, ethnicity, or geography, and the control group's comparability to the cancer group is not known from aggregate counts.
+- **No effect sizes.** Odds ratios and confidence intervals were not estimated; large χ² values partly reflect the large sample.
+- **Multiple testing.** 26 tests were run without correction. Under a Bonferroni-corrected threshold of 0.05 / 26 ≈ 0.002, every result significant at 0.05 remains significant (the largest significant p-value is 3.9 × 10⁻⁴), so the conclusions are unchanged, but the correction should be applied formally in any extension.
+- **Inferred, not observed, alleles.** The allele-level test treats 2N maximum-likelihood allele counts as if they were observed, which assumes Hardy–Weinberg equilibrium and ignores estimation uncertainty. This inflates the allele-level χ² statistics, so they should be read as a consistency check on the phenotype analysis rather than as independent evidence.
+- **Small subgroups.** Kidney (n = 35) has an expected AB count below 5 and urinary bladder (n = 50) has no observed AB cases, conditions under which the chi-square approximation is weak.
 
-### 4.1 Overall Genotype Comparison
+## 6. Possible extensions
 
-- χ² = 165.88  
-- df = 2  
-- p-value < 2.2 × 10⁻¹⁶  
+- Logistic regression or odds ratios with confidence intervals for each blood type.
+- Post hoc comparisons to identify which phenotype drives each significant result.
+- Formal multiple-testing correction (Bonferroni or Benjamini–Hochberg).
+- Fisher's exact test for the small subgroups.
 
-Conclusion: Blood genotype distribution differs significantly between cancer patients and controls.
+## 7. Reproducing the analysis
 
----
+### Requirements
 
-### 4.2 Individual Cancer Type Comparisons (Genotype)
+Python 3.8+ with NumPy, SciPy, and pandas (pandas is optional; it only formats the output tables).
 
-All cancer types exhibited statistically significant differences in genotype distribution relative to controls.
+```bash
+pip install -r requirements.txt
+```
 
----
+### Run
 
-## 5. Interpretation and Limitations
+```bash
+python abo_bloodtype_cancer_analysis.py
+```
 
-The results indicate robust statistical associations between ABO blood type and cancer presence.
+The script prints the phenotype and allele-level tests for the pooled group and for each cancer type, with χ², degrees of freedom, p-value, and the decision at α = 0.05. The data are hard-coded in the script, so no download is needed.
 
-However:
+### Repository layout
 
-- The chi-square test identifies association, not causation.
-- Effect size and relative risk were not estimated.
-- Specific blood types contributing to increased susceptibility were not isolated.
-- Multiple testing adjustments were not applied.
+```text
+ABO-Blood-Type-Cancer-Analysis/
+├── README.md
+├── requirements.txt
+├── abo_bloodtype_cancer_analysis.py   # full Python reimplementation
+└── ABO Blood Type Analysis.pdf        # original R-based report
+```
 
-Further modeling would be necessary to quantify risk and determine clinical relevance.
-
----
-
-## 6. Potential Extensions
-
-Future analyses could incorporate:
-
-- Logistic regression modeling  
-- Odds ratio estimation  
-- Post hoc pairwise comparisons  
-- Multiple testing correction  
-- Effect size estimation  
-
----
-
-## 7. Implementation Notes
-
-This repository contains a complete Python reimplementation of the original R-based analysis. The code reproduces:
-
-- Contingency table construction  
-- Chi-square tests of independence  
-- Maximum likelihood estimation for genotype frequencies  
-- Individual cancer-type comparisons  
-
----
-
-## 8. Reproducibility
-
-Install dependencies:
-
-    pip install -r requirements.txt
-
-Run the analysis:
-
-    python abo_bloodtype_cancer_analysis.py
-
----
-
-## 9. Summary of Findings
-
-- Strong statistical evidence of association between blood phenotype and cancer.
-- Strong statistical evidence of association between blood genotype and cancer.
-- Nearly all cancer types show significant associations.
-- Gastrointestinal tract and gall bladder cancers were not significant in phenotype analysis.
-- Genotype analysis showed consistent significance across all cancer types.
-
----
+Note that the allele-level χ² values here differ slightly from those in the original R report because the Python implementation estimates allele frequencies with a 0.01 grid search rather than a continuous optimizer. The conclusions are the same.
 
 ## Disclaimer
 
-This project is intended for statistical and methodological exploration.  
-Findings should not be interpreted as medical advice or clinical guidance.
+This project is a statistical and methodological exercise on published aggregate data. Its findings are not medical advice and should not be used for clinical decisions.
